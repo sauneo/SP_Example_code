@@ -9,6 +9,12 @@ breadcrumbs:
   new_entity: Nová entita
   overview_of_entities: Přehled entit
 
+error:
+  name:
+    max: Název může mít maximálně {{ limit }} znaků
+    min: Název musí mít alespoň {{ limit }} znaky
+    required: Název je povinný údaj
+
 fieldset:
   basic_data: Základní údaje
 
