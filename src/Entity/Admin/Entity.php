@@ -6,8 +6,15 @@ use App\Repository\Admin\EntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: EntityRepository::class)]
+
+#[UniqueEntity(
+    fields: ['name'],
+    message: 'error.name.data_already_exists',
+)]
+
 class Entity
 {
     #[ORM\Id]

@@ -9,6 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Unique;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class EntityType extends AbstractType
@@ -27,12 +28,14 @@ class EntityType extends AbstractType
                     'placeholder' => mb_strtolower($this->translator->trans('placeholder.name', [], 'entity'), 'UTF-8'),
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => $this->translator->trans('error.name.required', [], 'entity')]),
+                    new NotBlank([
+                        'message' => 'error.name.required'
+                    ]),
                     new Length([
                         'min' => 3, 
-                        'minMessage' => $this->translator->trans('error.name.min', [], 'entity'),
-                        'max' => 255,
-                        'maxMessage' => $this->translator->trans('error.name.max', [], 'entity')
+                        'minMessage' => 'error.name.min',
+                        'max' => 10,
+                        'maxMessage' => 'error.name.max',
                     ]),
                 ],
                 'required' => true,

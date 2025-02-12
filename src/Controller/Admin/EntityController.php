@@ -13,6 +13,7 @@ use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTableFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -26,6 +27,7 @@ class EntityController extends AbstractController
     public function __construct(
         private LanguageService $languageService,
         private ProjectService $projectService,
+        private RequestStack $requestStack,
         private EntityManagerInterface $entityManager,
         private TranslatorInterface $translator,
     ) {
@@ -43,6 +45,7 @@ class EntityController extends AbstractController
         Request $request,
         UrlGeneratorInterface $router,
     ): Response {
+
         $table = $dataTableFactory->create()
             ->add('name', TextColumn::class, [
                 'label' => mb_strtolower($this->translator->trans('label.name', [], 'entity'), 'UTF-8'),
@@ -72,8 +75,8 @@ class EntityController extends AbstractController
                 'entity' => Entity::class,
                 'query' => function (QueryBuilder $builder) {
                     $builder
-                        ->select('m_et')
-                        ->from(Entity::class, 'm_et');
+                        ->select('t_ent')
+                        ->from(Entity::class, 't_ent');
                 },
             ]);
 
@@ -88,6 +91,7 @@ class EntityController extends AbstractController
             'pageTitle' => $this->translator->trans('breadcrumbs.overview_of_entities', [], 'entity'),
             'datatable' => $table,
         ]);
+
     }
 
     /**
@@ -96,14 +100,15 @@ class EntityController extends AbstractController
      * @return Response The response object
      */
     #[Route('/new', name: 'app_admin_entity_new', methods: ['GET', 'POST'])]
-    public function new(
-        Request $request,
-    ): Response {
+    public function new(Request $request): Response {
+
         $entity = new Entity();
+
         $form = $this->createForm(EntityType::class, $entity);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $this->entityManager->persist($entity);
             $this->entityManager->flush();
 
@@ -113,6 +118,7 @@ class EntityController extends AbstractController
             );
 
             return $this->redirectToRoute('app_admin_entity_index', [], Response::HTTP_SEE_OTHER);
+
         }
 
         return $this->render('admin/entity/new.html.twig', [
@@ -123,6 +129,7 @@ class EntityController extends AbstractController
             'entity' => $entity,
             'form' => $form,
         ]);
+
     }
 
     /**
@@ -132,9 +139,8 @@ class EntityController extends AbstractController
      * @return Response The response object containing the rendered view.
      */
     #[Route('/{id<\d+>}', name: 'app_admin_entity_show', methods: ['GET'])]
-    public function show(
-        Entity $entity,
-    ): Response {
+    public function show(Entity $entity): Response {
+
         return $this->render('admin/entity/show.html.twig', [
             'languageService' => $this->languageService->getLanguage(),
             'projectService' => $this->projectService->getProject(),
@@ -142,6 +148,7 @@ class EntityController extends AbstractController
             'pageTitle' => $this->translator->trans('breadcrumbs.entity_detail', [], 'entity'),
             'entity' => $entity,
         ]);
+
     }
 
     /**
@@ -156,6 +163,7 @@ class EntityController extends AbstractController
         Entity $entity,
         Request $request,
     ): Response {
+
         $form = $this->createForm(EntityType::class, $entity);
         $form->handleRequest($request);
 
@@ -179,6 +187,7 @@ class EntityController extends AbstractController
             'entity' => $entity,
             'form' => $form,
         ]);
+
     }
 
     /**
@@ -193,7 +202,9 @@ class EntityController extends AbstractController
         Entity $entity,
         Request $request,
     ): Response {
+
         if ($this->isCsrfTokenValid('delete'.$entity->getId(), $request->getPayload()->get('_token'))) {
+
             $this->entityManager->remove($entity);
             $this->entityManager->flush();
 
@@ -201,8 +212,10 @@ class EntityController extends AbstractController
                 'success',
                 $this->translator->trans('message.data_has_been_successfully_deleted')
             );
+
         }
 
         return $this->redirectToRoute('app_admin_entity_index', [], Response::HTTP_SEE_OTHER);
+
     }
 }
